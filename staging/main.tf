@@ -2,11 +2,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "server_port" {
-  default     = 8080
-  description = "The port that the server will use for HTTP requests"
-}
-
 data "aws_availability_zones" "all" {}
 
 resource "aws_launch_configuration" "example" {
@@ -99,7 +94,35 @@ resource "aws_elb" "example" {
   }
 }
 
-output "elb_dns_name" {
-  value = aws_elb.example.dns_name
-  description = "The public IP address of my boxes"
+resource "aws_s3_bucket" "mrg_staging_terraform_state" {
+  bucket = "mrg-staging-terraform-state"
+
+  versioning {
+    enabled = true
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "aws_dynamodb_table" "mrg_staging_terraform_lock" {
+  name           = "mrg-staging-terraform-lock"
+  read_capacity  = 1
+  write_capacity = 1
+  hash_key       = "LockID"
+
+  attribute {
+    name = "LockID"
+    type = "S"
+  }
+}
+
+terraform {
+  backend "s3" {
+    bucket         = "mrg-staging-terraform-state"
+    key            = "infra/staging.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "mrg-staging-terraform-lock"
+  }
 }
