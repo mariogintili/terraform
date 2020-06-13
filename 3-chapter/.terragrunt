@@ -1,0 +1,18 @@
+lock = {
+  backend = "dynamodb"
+
+  config {
+    state_file_id = "global/s3"
+  }
+}
+
+remote_state = {
+  backend = "s3"
+
+  config {
+    encrypt = "true"
+    bucket  = "terraform-state"
+    key     = "global/s3/terraform.tfstate"
+    region  = "us-east-1"
+  }
+}
