@@ -2,8 +2,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "aws_s3_bucket" "terraform_state" {
-  bucket = "terraform-state"
+resource "aws_s3_bucket" "mrg_terraform_state" {
+  bucket = "mrg-terraform-state"
 
   versioning {
     enabled = true
